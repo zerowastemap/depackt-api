@@ -1,0 +1,18 @@
+{
+  "app/models/*.js": {
+    "type": "model",
+    "alternate": "test/mocha/models/{}.spec.js"
+  },
+  "app/controllers/*.js": {
+    "type": "controller",
+    "alternate": "test/mocha/controllers/{}.spec.js"
+  },
+  "test/mocha/models/*.spec.js": {
+    "type": "modeltest",
+    "alternate": "app/models/{}.js"
+  },
+  "test/mocha/controllers/*.spec.js": {
+    "type": "controllertest",
+    "alternate": "app/controllers/{}.js"
+  }
+}
