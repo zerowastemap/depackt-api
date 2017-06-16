@@ -25,6 +25,9 @@ export default (config) => {
   if (process.env.DB_USER) {
     options.user = process.env.DB_USER
     options.pass = process.env.DB_PASS
+    options.auth = {
+      authdb: process.env.DB_NAME
+    }
   }
 
   const { uri } = config.db
