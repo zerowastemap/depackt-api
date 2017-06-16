@@ -71,9 +71,7 @@
     "request-promise": "^4.2.0",
     "require-dir": "^0.3.1",
     "rsvp": "^3.3.3",
-    "sinon": "^1.17.7",
     "slug": "^0.9.1",
-    "spdy": "^3.4.4",
     "winston": "^2.3.1"
   }
 }

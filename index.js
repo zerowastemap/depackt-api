@@ -5,7 +5,6 @@ require('dotenv').config() // Load environment variables into process.env
 import {readFileSync} from 'fs'
 import path from 'path'
 import {log} from 'winston'
-import {createServer} from 'spdy'
 import express from 'express'
 import helmet from 'helmet'
 
@@ -44,23 +43,13 @@ routes(app)
 const port = process.env.APP_PORT || 8080
 const host = process.env.APP_HOST || '127.0.0.1'
 
-/*
- * SSL options for spdy
- */
-
-const options = {
-  key: readFileSync(path.join(__dirname, 'server.key')),
-  cert: readFileSync(path.join(__dirname, 'server.crt'))
-}
-
-createServer(options, app)
-  .listen(port, host, (err) => {
-    if (err) {
-      console.error(err)
-      return process.exit(1)
-    }
-    log('info', 'Depackt API is running', {
-      port: port,
-      version: pkg.version
-    })
+app.listen(port, host, (err) => {
+  if (err) {
+    console.error(err)
+    return process.exit(1)
+  }
+  log('info', 'Depackt API is running', {
+    port: port,
+    version: pkg.version
   })
+})
