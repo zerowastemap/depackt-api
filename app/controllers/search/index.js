@@ -6,7 +6,7 @@
 
 // Module dependencies
 
-import Track from '../../models/track'
+import Location from '../../models/location'
 
 /**
   * Simple query
@@ -19,7 +19,7 @@ import Track from '../../models/track'
 
 export const query = async (req, res, next) => {
   try {
-    let query = await Track.find({
+    let query = await Location.find({
       title: req.query.q
     })
 
