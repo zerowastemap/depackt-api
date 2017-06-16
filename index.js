@@ -1,9 +1,5 @@
-'use strict'
-
 require('dotenv').config() // Load environment variables into process.env
 
-import {readFileSync} from 'fs'
-import path from 'path'
 import {log} from 'winston'
 import express from 'express'
 import helmet from 'helmet'
