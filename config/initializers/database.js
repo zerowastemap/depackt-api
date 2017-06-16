@@ -18,7 +18,13 @@ export default (config) => {
     },
     server: {
       poolSize: 5
-    }
+    },
+    promiseLibrary: global.Promise
+  }
+
+  if (process.env.DB_USER) {
+    options.user = process.env.DB_USER
+    options.pass = process.env.DB_PASS
   }
 
   const { uri } = config.db
