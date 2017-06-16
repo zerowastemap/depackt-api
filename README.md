@@ -1,6 +1,6 @@
-# Tracklist API version 1.0.0
+# Depackt API version 1.0.0
 
-This is tracklistapp official API repo.
+This is depackt official API repo.
 
 # Installation
 
@@ -12,7 +12,7 @@ This is tracklistapp official API repo.
 
   or with pm2
 
-    pm2 start index.js --interpreter ./node_modules/.bin/babel-node --name tracklist-api
+    pm2 start index.js --interpreter ./node_modules/.bin/babel-node --name depackt-api
 
 # Stack
 
@@ -48,4 +48,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 # Contact
 
-Augustin Godiscal <dev@auggod.io>
+Augustin Godiscal <hello@depackt.be>
