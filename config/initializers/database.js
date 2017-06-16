@@ -12,6 +12,8 @@ import User from '../../app/models/user'
 export default (config) => {
   'use strict'
 
+  const dbName = process.env.DB_NAME
+
   const options = {
     db: {
       native_parser: true
@@ -64,12 +66,12 @@ export default (config) => {
   })
 
   mongoose.connection.on('connected', () => {
-    log('info', `Mongoose default connection open to ${uri}`)
+    log('info', `Mongoose default connection open to ${dbName}`)
   })
 
   // If the connection throws an error
-  mongoose.connection.on('error', (err) => {
-    log('info', `Mongoose default connection error: ${err}`)
+  mongoose.connection.on('error', () => {
+    log('info', `Mongoose default connection error: ${dbName}`)
   })
 
   // When the connection is disconnected
