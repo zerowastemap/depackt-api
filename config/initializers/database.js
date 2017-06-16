@@ -12,7 +12,7 @@ import User from '../../app/models/user'
 export default (config) => {
   'use strict'
 
-  const dbName = process.env.DB_NAME
+  const dbName = config.db.name
 
   const options = {
     db: {

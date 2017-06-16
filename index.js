@@ -17,7 +17,8 @@ app.use(helmet())
 const config = {
   db: {
     uri: process.env.DB_URI,
-    host: process.env.DB_HOST
+    host: process.env.DB_HOST,
+    name: process.env.DB_NAME
   },
   user: {
     username: process.env.APP_USER,
