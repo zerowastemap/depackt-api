@@ -71,8 +71,12 @@ const LocationSchema = new Schema({
   },
   kind: String,
   cover: {
-    type: String,
-    validate: isHttpsUrl
+    width: String,
+    height: String,
+    src: {
+      type: String,
+      validate: isHttpsUrl
+    }
   },
   featured: {
     type: Boolean,

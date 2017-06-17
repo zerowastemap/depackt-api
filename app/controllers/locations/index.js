@@ -13,7 +13,7 @@ import slug from 'slug'
 
 /**
   * Find locations
-  * using only [<longitude>, <latitude>] and distance in km
+  * using only [<latitude>,<longitude>] and distance in km
   * @name find
   * @function
   * @param {Object} req
@@ -22,9 +22,9 @@ import slug from 'slug'
   */
 
 export const find = async (req, res, next) => {
-  const { limit = 100, longitude = 4.351710, latitude = 50.850340, distanceKm = 50 } = req.query
+  const { limit = 100, latitude = 50.850340, longitude = 4.351710, distanceKm = 50 } = req.query
 
-  for (let n of [longitude, latitude, limit, distanceKm]) {
+  for (let n of [latitude, longitude, limit, distanceKm]) {
     if (isNaN(n)) return res.status(400).json({message: 'Parameter should be a valid number'})
   }
 
@@ -35,13 +35,13 @@ export const find = async (req, res, next) => {
       .find({
         'address.location': {
           $near: {
-            $geometry: { type: 'Point', coordinates: [longitude, latitude] },
+            $geometry: { type: 'Point', coordinates: [latitude, longitude] },
             $minDistance: 0,
             $maxDistance: maxDistanceInMeters
           }
         }
       })
-      .select('-_id id slug title url email tags address kind cover featured')
+      .select('-_id id slug cover title url email tags address kind cover featured')
       .limit(limit)
 
     if (locations.length) {
@@ -84,6 +84,8 @@ export const create = async (req, res, next) => {
       kind,
       featured
     })
+
+    location.cover.src = `https://maps.depackt.be/assets/001.jpg`
 
     if (title) {
       location.slug = slug(title).toLowerCase()
