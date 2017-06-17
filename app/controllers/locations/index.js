@@ -33,9 +33,9 @@ export const find = async (req, res, next) => {
   try {
     const locations = await Location
       .find({
-        'address.location': {
+        'geometry.location': {
           $near: {
-            $geometry: { type: 'Point', coordinates: [latitude, longitude] },
+            $geometry: { type: 'Point', coordinates: [longitude, latitude] },
             $minDistance: 0,
             $maxDistance: maxDistanceInMeters
           }
@@ -71,7 +71,7 @@ export const find = async (req, res, next) => {
   */
 
 export const create = async (req, res, next) => {
-  const { title, url, openingDate, email, tags, address, kind, featured = false } = req.body
+  const { title, url, geometry, openingDate, email, tags, address, kind, featured = false } = req.body
 
   try {
     let location = await new Location({
@@ -79,6 +79,7 @@ export const create = async (req, res, next) => {
       openingDate,
       url,
       email,
+      geometry,
       tags,
       address,
       kind,

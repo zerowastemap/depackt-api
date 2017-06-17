@@ -67,6 +67,12 @@ const LocationSchema = new Schema({
     countryCode: String,
     region: String,
     city: String,
+    location: {
+      lat: Number,
+      lng: Number
+    }
+  },
+  geometry: {
     location: {'type': {type: String, enum: 'Point', default: 'Point'}, coordinates: { type: [Number], default: [0, 0] }}
   },
   kind: String,
@@ -101,6 +107,6 @@ LocationSchema.plugin(autoIncrement.plugin, {
   incrementBy: 1
 })
 
-LocationSchema.index({'address.location': '2dsphere'})
+LocationSchema.index({'geometry.location': '2dsphere'})
 
 export default mongoose.model('Location', LocationSchema)
