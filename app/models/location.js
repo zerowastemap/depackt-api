@@ -18,7 +18,18 @@ autoIncrement.initialize(mongoose)
  * Validations
  */
 
+const emailValidator = validate({
+  validator: 'isEmail',
+  message: 'Please provide a valid email'
+})
+
 const urlValidator = validate({
+  validator: 'isURL',
+  passIfEmpty: true,
+  message: 'Please provide a valid url'
+})
+
+const isHttpsUrl = validate({
   validator: 'matches',
   arguments: /(https?:\/\/(?:www\.|(?!www))[^\s.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/,
   message: 'Please provide a valid https url'
@@ -27,45 +38,41 @@ const urlValidator = validate({
 const isAlphaNumeric = validate({
   validator: 'isAlphanumeric',
   passIfEmpty: true,
-  message: 'Kind should contain alpha-numeric characters only'
+  message: 'Should contain alpha-numeric characters only'
 })
 
 const LocationSchema = new Schema({
   id: Number,
-  name: {
+  title: {
     type: String,
-    required: true
+    required: [true, 'Title is required']
   },
+  slug: String,
+  permalink: String,
+  openingDate: Date,
   url: {
     type: String,
-    validate: urlValidator,
-    required: true
+    validate: urlValidator
   },
   email: {
-    type: String
+    type: String,
+    validate: emailValidator
   },
-  location: {
-    name: String,
+  tags: [],
+  address: {
+    streetName: String,
+    streetNumber: Number,
     zip: Number,
-    city: String,
-    region: String,
     country: String,
-    coords: {
-      lat: Number,
-      long: Number
-    }
+    countryCode: String,
+    region: String,
+    city: String,
+    location: {'type': {type: String, enum: 'Point', default: 'Point'}, coordinates: { type: [Number], default: [0, 0] }}
   },
-  locations: [{
-    name: String,
-    zip: Number,
-    coords: {
-      lat: Number,
-      long: Number
-    }
-  }],
+  kind: String,
   cover: {
     type: String,
-    validate: urlValidator
+    validate: isHttpsUrl
   },
   featured: {
     type: Boolean,
@@ -89,5 +96,7 @@ LocationSchema.plugin(autoIncrement.plugin, {
   startAt: 1,
   incrementBy: 1
 })
+
+LocationSchema.index({'address.location': '2dsphere'})
 
 export default mongoose.model('Location', LocationSchema)

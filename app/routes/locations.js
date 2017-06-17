@@ -6,7 +6,7 @@
 
 // Module dependencies
 
-import {show, create, list} from '../controllers/locations'
+import {create, find, update, remove} from '../controllers/locations'
 
 /**
  * @function
@@ -16,10 +16,11 @@ import {show, create, list} from '../controllers/locations'
 export default (router) => {
   router
     .route('/:id')
-    .get(show)
+    .put(update)
+    .delete(remove)
 
   router
     .route('/')
     .post(create)
-    .get(list)
+    .get(find)
 }
