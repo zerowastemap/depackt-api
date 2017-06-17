@@ -12,7 +12,7 @@ import User from '../../app/models/user'
 export default (config) => {
   'use strict'
 
-  const dbName = config.db.name
+  const { uri: mongoURI, name: dbName, user: dbUser, pass: dbPass } = config.db
 
   const options = {
     db: {
@@ -25,16 +25,14 @@ export default (config) => {
   }
 
   if (process.env.DB_USER) {
-    options.user = process.env.DB_USER
-    options.pass = process.env.DB_PASS
+    options.user = dbUser
+    options.pass = dbPass
     options.auth = {
-      authdb: process.env.DB_NAME
+      authdb: dbName
     }
   }
 
-  const { uri } = config.db
-
-  mongoose.connect(uri, options, async (err) => {
+  mongoose.connect(mongoURI, options, async (err) => {
     if (err) throw err
 
     try {

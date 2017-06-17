@@ -18,7 +18,9 @@ const config = {
   db: {
     uri: process.env.DB_URI,
     host: process.env.DB_HOST,
-    name: process.env.DB_NAME
+    name: process.env.DB_NAME,
+    pass: process.env.DB_PASS,
+    user: process.env.DB_USER
   },
   user: {
     username: process.env.APP_USER,
