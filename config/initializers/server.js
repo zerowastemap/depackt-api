@@ -29,7 +29,7 @@ export default (app, config) => {
     threshold: 512
   }))
 
-  app.use(logger('common'))
+  app.use(logger('dev'))
 
   app.use(cookieParser())
 
