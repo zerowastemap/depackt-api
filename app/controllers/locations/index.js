@@ -13,7 +13,7 @@ import slug from 'slug'
 
 /**
   * Find locations
-  * using only [<latitude>,<longitude>] and distance in km
+  * using only [<longitude>, <latitude>] and distance in km
   * @name find
   * @function
   * @param {Object} req
