@@ -10,6 +10,7 @@
 
 import Location from '../../models/location'
 import slug from 'slug'
+import dataSet from '../../../public/data.json'
 
 /**
   * Find locations
@@ -41,7 +42,7 @@ export const find = async (req, res, next) => {
           }
         }
       })
-      .select('-_id id slug cover title url email tags address kind cover featured')
+      .select('slug cover title url email tags address kind cover featured')
       .limit(limit)
 
     if (locations.length) {
@@ -55,6 +56,30 @@ export const find = async (req, res, next) => {
       status: 404,
       message: 'No locations found',
       data: null
+    })
+  } catch (err) {
+    return res.status(500).json({ status: 500, err })
+  }
+}
+
+/**
+  * Add locations in bulk
+  * @name bulk
+  * @function
+  * @param {Object} req
+  * @param {Object} res
+  * @param {Object} next
+  */
+
+export const bulk = async (req, res, next) => {
+  const { payload = dataSet.data } = req.body
+
+  try {
+    let locations = await Location.insertMany(payload, { ordered: false }) // NOTE: Won't throw an error as long as majority of inserts succeeded
+
+    return res.json({
+      status: 200,
+      data: locations
     })
   } catch (err) {
     return res.status(500).json({ status: 500, err })
