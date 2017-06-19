@@ -41,3 +41,20 @@ export const logout = (req, res, next) => {
   req.logout()
   res.json({'message': 'User successfully logged out'})
 }
+
+/**
+ * Simple authorization token check
+ * because normal auth is not ready
+ * @name challenge
+ * @function
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Object} next
+ */
+
+export const challenge = (req, res, next) => {
+  if (process.env.AUTH_TOKEN !== req.headers['auth-token']) {
+    return res.status(401).json({status: 401, message: 'Not authorized', data: null})
+  }
+  next()
+}

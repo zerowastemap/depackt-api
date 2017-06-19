@@ -23,15 +23,6 @@ import crypto from 'crypto-promise'
   */
 
 export const load = async (req, res, next, id) => {
-  id = _parseInt(id)
-
-  if (_isNaN(id)) {
-    return res.status(400).json({
-      status: 400,
-      message: `Parameter 'id' should be an integer`
-    })
-  }
-
   try {
     req.profile = await User.load({ id })
   } catch (err) {
@@ -142,7 +133,7 @@ export const list = async (req, res, next) => {
   try {
     const users = await User
       .find({ active })
-      .select('id username email')
+      .select('username email')
       .limit(limit)
 
     if (users.length) {

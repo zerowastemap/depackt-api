@@ -7,6 +7,7 @@
 // Module dependencies
 
 import * as users from '../controllers/users'
+import {challenge} from '../controllers/auth'
 
 /**
  * @function
@@ -17,14 +18,14 @@ export default (router) => {
   router.param('id', users.load)
 
   router.route('/:id')
-    .get(users.show)
+    .get(challenge, users.show)
 
   router
     .route('/forgot')
-    .post(users.forgotPassword)
+    .post(challenge, users.forgotPassword)
 
   router
     .route('/')
-    .post(users.create)
-    .get(users.list)
+    .post(challenge, users.create)
+    .get(challenge, users.list)
 }

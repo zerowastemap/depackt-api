@@ -6,7 +6,8 @@
 
 // Module dependencies
 
-import {create, find, update, remove} from '../controllers/locations'
+import {create, find, update, remove, bulk} from '../controllers/locations'
+import {challenge} from '../controllers/auth'
 
 /**
  * @function
@@ -16,11 +17,15 @@ import {create, find, update, remove} from '../controllers/locations'
 export default (router) => {
   router
     .route('/:id')
-    .put(update)
-    .delete(remove)
+    .put(challenge, update)
+    .delete(challenge, remove)
+
+  router
+    .route('/bulk')
+    .post(challenge, bulk)
 
   router
     .route('/')
-    .post(create)
+    .post(challenge, create)
     .get(find)
 }
