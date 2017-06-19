@@ -61,7 +61,6 @@
     "lodash": "^4.17.4",
     "mongoosastic": "^4.3.0",
     "mongoose": "^4.10.6",
-    "mongoose-auto-increment": "^5.0.1",
     "mongoose-validator": "^1.2.5",
     "morgan": "^1.8.0",
     "passport": "^0.3.2",

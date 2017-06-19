@@ -5,17 +5,13 @@
  */
 
 import mongoose from 'mongoose'
-import autoIncrement from 'mongoose-auto-increment'
 import bcrypt from 'bcrypt'
 
 const Schema = mongoose.Schema
 
 mongoose.Promise = global.Promise // See http://mongoosejs.com/docs/promises.html
 
-autoIncrement.initialize(mongoose)
-
 const UserSchema = new Schema({
-  id: Number,
   email: {
     type: String,
     unique: true,
@@ -62,13 +58,6 @@ UserSchema.path('username').validate((username) => {
 UserSchema.path('password').validate(function (password) {
   return password.length && this.password.length
 }, 'Password cannot be blank')
-
-UserSchema.plugin(autoIncrement.plugin, {
-  model: 'User',
-  field: 'id',
-  startAt: 0,
-  incrementBy: 1
-})
 
 UserSchema.pre('save', function (next) {
   var user = this
@@ -121,7 +110,7 @@ UserSchema.statics = {
 
   load (options, cb) {
     const { id, select = 'id username email' } = options
-    return this.findOne({ id })
+    return this.findOne({ _id: id })
       .select(select)
       .exec(cb)
   }

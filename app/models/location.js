@@ -5,14 +5,11 @@
  */
 
 import mongoose from 'mongoose'
-import autoIncrement from 'mongoose-auto-increment'
 import validate from 'mongoose-validator'
 
 const Schema = mongoose.Schema
 
 mongoose.Promise = global.Promise // See http://mongoosejs.com/docs/promises.html
-
-autoIncrement.initialize(mongoose)
 
 /*
  * Validations
@@ -20,6 +17,7 @@ autoIncrement.initialize(mongoose)
 
 const emailValidator = validate({
   validator: 'isEmail',
+  passIfEmpty: true,
   message: 'Please provide a valid email'
 })
 
@@ -42,10 +40,10 @@ const isAlphaNumeric = validate({
 })
 
 const LocationSchema = new Schema({
-  id: Number,
   title: {
     type: String,
-    required: [true, 'Title is required']
+    required: [true, 'Title is required'],
+    unique: true
   },
   slug: String,
   permalink: String,
@@ -100,13 +98,16 @@ const LocationSchema = new Schema({
   strict: true
 })
 
-LocationSchema.plugin(autoIncrement.plugin, {
-  model: 'Location',
-  field: 'id',
-  startAt: 1,
-  incrementBy: 1
-})
-
 LocationSchema.index({'geometry.location': '2dsphere'})
 
-export default mongoose.model('Location', LocationSchema)
+const Location = mongoose.model('Location', LocationSchema)
+
+Location.on('index', function (err) {
+  if (err) {
+    console.error('Location index error: %s', err)
+  } else {
+    console.info('Location indexing complete')
+  }
+})
+
+export default Location
