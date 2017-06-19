@@ -32,6 +32,8 @@ export default (config) => {
     }
   }
 
+  mongoose.set('debug', true)
+
   mongoose.connect(mongoURI, options, async (err) => {
     if (err) throw err
 
