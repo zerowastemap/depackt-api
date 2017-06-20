@@ -55,7 +55,7 @@ export const find = async (req, res, next) => {
     return res.status(404).json({
       status: 404,
       message: 'No locations found',
-      data: null
+      data: []
     })
   } catch (err) {
     return res.status(500).json({ status: 500, err })
