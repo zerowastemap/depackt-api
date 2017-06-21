@@ -121,7 +121,11 @@ export const create = async (req, res, next) => {
       if (err) {
         return res.json({ err })
       }
-      return res.json(location)
+      return res.json({
+        title: location.title,
+        url: location.url,
+        address: location.address
+      })
     })
   } catch (err) {
     return res.status(500).json({ status: 500, err })
