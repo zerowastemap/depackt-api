@@ -59,8 +59,8 @@ const LocationSchema = new Schema({
   tags: [],
   address: {
     streetName: String,
-    streetNumber: Number,
-    zip: Number,
+    streetNumber: String,
+    zip: String,
     country: String,
     countryCode: String,
     region: String,
@@ -70,8 +70,19 @@ const LocationSchema = new Schema({
       lng: Number
     }
   },
+  formatted_address: String,
   geometry: {
-    location: {'type': {type: String, enum: 'Point', default: 'Point'}, coordinates: { type: [Number], default: [0, 0] }}
+    location: {
+      'type': {
+        type: String,
+        enum: 'Point',
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number],
+        default: [0, 0]
+      }
+    }
   },
   kind: String,
   cover: {
