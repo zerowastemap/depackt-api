@@ -8,9 +8,11 @@
   * Module dependencies
   */
 
+import {log} from 'winston'
 import Location from '../../models/location'
 import slug from 'slug'
 import dataSet from '../../../public/data.json'
+import cache from 'memory-cache'
 
 /**
   * Find locations
@@ -24,6 +26,15 @@ import dataSet from '../../../public/data.json'
 
 export const find = async (req, res, next) => {
   const { limit = 100, latitude = 50.850340, longitude = 4.351710, distanceKm = 50 } = req.query
+  const cached = cache.get(`${latitude}:${longitude}:${distanceKm}`)
+
+  if (cached) {
+    return res.json({
+      status: 200,
+      cached: true,
+      data: cached // return cached locations
+    })
+  }
 
   for (let n of [latitude, longitude, limit, distanceKm]) {
     if (isNaN(n)) return res.status(400).json({message: 'Parameter should be a valid number'})
@@ -46,6 +57,10 @@ export const find = async (req, res, next) => {
       .limit(limit)
 
     if (locations.length) {
+      cache.put(`${latitude}:${longitude}:${distanceKm}`, locations, 8.64e+7, (key, value) => {
+        log('info', `Cached ${key}`)
+      })
+
       return res.json({
         status: 200,
         data: locations
