@@ -1,14 +1,13 @@
-require('dotenv').config() // Load environment variables into process.env
-
 import {log} from 'winston'
 import express from 'express'
 import helmet from 'helmet'
-
 import database from './config/initializers/database'
 import server from './config/initializers/server'
 import routes from './config/initializers/routes'
 import pkg from './package.json'
 import './config/passport'
+
+require('dotenv').config() // Load environment variables into process.env
 
 const app = express()
 
