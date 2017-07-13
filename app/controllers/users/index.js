@@ -7,9 +7,6 @@
 // Module dependencies.
 
 import User from '../../models/user'
-
-import _isNaN from 'lodash/isNaN'
-import _parseInt from 'lodash/parseInt'
 import crypto from 'crypto-promise'
 
 /**

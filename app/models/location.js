@@ -33,11 +33,15 @@ const isHttpsUrl = validate({
   message: 'Please provide a valid https url'
 })
 
+/*
+
 const isAlphaNumeric = validate({
   validator: 'isAlphanumeric',
   passIfEmpty: true,
   message: 'Should contain alpha-numeric characters only'
 })
+
+*/
 
 const LocationSchema = new Schema({
   title: {
