@@ -28,16 +28,10 @@ export const find = async (req, res, next) => {
   const { limit = 100, latitude = 50.850340, longitude = 4.351710, distanceKm = 50 } = req.query
   const cached = cache.get(`${latitude}:${longitude}:${distanceKm}`)
 
-  if (cached) {
-    return res.json({
-      status: 200,
-      cached: true,
-      data: cached // return cached locations
-    })
-  }
+  if (cached) return res.json({ status: 200, cached: true, data: cached })
 
   for (let n of [latitude, longitude, limit, distanceKm]) {
-    if (isNaN(n)) return res.status(400).json({message: 'Parameter should be a valid number'})
+    if (isNaN(n)) return res.status(400).json({message: 'All parameters should be valid numbers'})
   }
 
   const maxDistanceInMeters = distanceKm * 1000
@@ -67,11 +61,7 @@ export const find = async (req, res, next) => {
       })
     }
 
-    return res.status(404).json({
-      status: 404,
-      message: 'No locations found',
-      data: []
-    })
+    return res.status(404).json({ status: 404, message: 'No locations found', data: [] })
   } catch (err) {
     return res.status(500).json({ status: 500, err })
   }
@@ -90,12 +80,10 @@ export const bulk = async (req, res, next) => {
   const { payload = dataSet.data } = req.body
 
   try {
-    let locations = await Location.insertMany(payload, { ordered: false }) // NOTE: Won't throw an error as long as majority of inserts succeeded
+    // NOTE: Won't throw an error as long as majority of inserts succeeded
+    let locations = await Location.insertMany(payload, { ordered: false })
 
-    return res.json({
-      status: 200,
-      data: locations
-    })
+    return res.json({ status: 200, data: locations })
   } catch (err) {
     return res.status(500).json({ status: 500, err })
   }
@@ -133,14 +121,8 @@ export const create = async (req, res, next) => {
     }
 
     location.save((err) => {
-      if (err) {
-        return res.json({ err })
-      }
-      return res.json({
-        title: location.title,
-        url: location.url,
-        address: location.address
-      })
+      if (err) return res.json({ err })
+      return res.json({ title, url, address })
     })
   } catch (err) {
     return res.status(500).json({ status: 500, err })

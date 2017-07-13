@@ -19,7 +19,10 @@ export const login = (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err)
     if (!user) {
-      return res.status(400).json({status: 400, 'message': 'Missing user infos'})
+      return res.status(400).json({
+        status: 400,
+        'message': 'Missing user infos'
+      })
     }
     req.logIn(user, err => {
       if (err) return next(err)
@@ -54,7 +57,11 @@ export const logout = (req, res, next) => {
 
 export const challenge = (req, res, next) => {
   if (process.env.AUTH_TOKEN !== req.headers['auth-token']) {
-    return res.status(401).json({status: 401, message: 'Not authorized', data: null})
+    return res.status(401).json({
+      status: 401,
+      message: 'Not authorized',
+      data: null
+    })
   }
   next()
 }
