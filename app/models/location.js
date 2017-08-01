@@ -6,6 +6,7 @@
 
 import mongoose from 'mongoose'
 import validate from 'mongoose-validator'
+import mongoosastic from 'mongoosastic'
 
 const Schema = mongoose.Schema
 
@@ -27,13 +28,13 @@ const urlValidator = validate({
   message: 'Please provide a valid url'
 })
 
+/*
+
 const isHttpsUrl = validate({
   validator: 'matches',
   arguments: /(https?:\/\/(?:www\.|(?!www))[^\s.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/,
   message: 'Please provide a valid https url'
 })
-
-/*
 
 const isAlphaNumeric = validate({
   validator: 'isAlphanumeric',
@@ -47,6 +48,7 @@ const LocationSchema = new Schema({
   title: {
     type: String,
     required: [true, 'Title is required'],
+    es_indexed: true,
     unique: true
   },
   slug: String,
@@ -60,21 +62,39 @@ const LocationSchema = new Schema({
     type: String,
     validate: emailValidator
   },
-  tags: [],
+  tags: {
+    type: Array,
+    es_indexed: true
+  },
   address: {
     streetName: String,
     streetNumber: String,
-    zip: String,
-    country: String,
+    zip: {
+      type: String,
+      es_indexed: true
+    },
+    country: {
+      type: String,
+      es_indexed: true
+    },
     countryCode: String,
-    region: String,
-    city: String,
+    region: {
+      type: String,
+      es_indexed: true
+    },
+    city: {
+      type: String,
+      es_indexed: true
+    },
     location: {
       lat: Number,
       lng: Number
     }
   },
-  formatted_address: String,
+  formatted_address: {
+    type: String,
+    es_indexed: true
+  },
   geometry: {
     location: {
       'type': {
@@ -88,13 +108,22 @@ const LocationSchema = new Schema({
       }
     }
   },
-  kind: String,
+  kind: {
+    type: String,
+    enum: ['supermarket', 'market', 'webshop', 'event', 'association'],
+    required: false,
+    es_indexed: true,
+    default: 'market'
+  },
+  map: {
+    type: Boolean,
+    default: true
+  },
   cover: {
     width: String,
     height: String,
     src: {
-      type: String,
-      validate: isHttpsUrl
+      type: String
     }
   },
   featured: {
@@ -115,7 +144,26 @@ const LocationSchema = new Schema({
 
 LocationSchema.index({'geometry.location': '2dsphere'})
 
+/*
+ * Elasticsearch
+ */
+
+LocationSchema.plugin(mongoosastic)
+
 const Location = mongoose.model('Location', LocationSchema)
+
+const stream = Location.synchronize()
+let count = 0
+
+stream.on('data', function (err, doc) {
+  count++
+})
+stream.on('close', function () {
+  console.log('indexed ' + count + ' documents!')
+})
+stream.on('error', function (err) {
+  console.log(err)
+})
 
 Location.on('index', function (err) {
   if (err) {
