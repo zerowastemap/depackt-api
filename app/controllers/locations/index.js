@@ -15,6 +15,91 @@ import dataSet from '../../../public/data.json'
 import cache from 'memory-cache'
 
 /**
+  * List everything
+  * @name list
+  * @function
+  * @param {Object} req
+  * @param {Object} res
+  * @param {Object} next
+  */
+
+export const list = async (req, res, next) => {
+  try {
+    const locations = await Location
+      .find({})
+      .select('slug cover title url email tags address kind cover featured')
+
+    if (locations.length) {
+      return res.json({data: locations})
+    }
+
+    return res.status(404).json({ status: 404, message: 'No locations found', data: [] })
+  } catch (err) {
+    return res.status(500).json({ status: 500, err })
+  }
+}
+
+/**
+  * Search locations using elasticsearch
+  * @name search
+  * @function
+  * @param {Object} req
+  * @param {Object} res
+  * @param {Object} next
+  */
+
+export const search = (req, res, next) => {
+  const { q, selection } = req.query
+
+  const query = {
+    'bool': {
+      'must': [
+        { 'multi_match': {
+          'query': q,
+          'fields': ['title', 'tags', 'address.zip', 'address.city', 'address.country'],
+          'fuzziness': 'AUTO'
+        }}
+      ]
+    }
+  }
+
+  if (selection) {
+    let kinds = ['supermarket', 'market', 'webshop', 'event', 'association']
+    let exclude = kinds.filter((item) => {
+      if (!selection.split(' ').includes(item)) return item
+    })
+    query.bool.must.push({'terms': {'kind': selection.split(' ')}})
+
+    query.bool['must_not'] = {
+      'terms': { 'kind': exclude }
+    }
+  }
+
+  Location.search(query, {
+    hydrate: true,
+    hydrateOptions: {
+      select: 'slug cover title url email tags address kind cover featured'
+    }
+  }, (err, results) => {
+    console.log(results)
+    if (err) return next(err)
+    var data, i$, ref$, len$, item
+    if (results.hits.total === 0 || results == null) {
+      return res.status(404).json({status: 404, data: []})
+    }
+    data = []
+    for (i$ = 0, len$ = (ref$ = results.hits.hits).length; i$ < len$; ++i$) {
+      item = ref$[i$]
+      data.push(item)
+    }
+    cache.put(q, data, 8.64e+7, (key, value) => {
+      log('info', `Cached ${key}`)
+    })
+    return res.json({data})
+  })
+}
+
+/**
   * Find locations
   * using only [<longitude>, <latitude>] and distance in km
   * @name find
@@ -47,6 +132,7 @@ export const find = async (req, res, next) => {
           }
         }
       })
+      .where({map: true})
       .select('slug cover title url email tags address kind cover featured')
       .limit(limit)
 
@@ -122,7 +208,7 @@ export const create = async (req, res, next) => {
 
     location.save((err) => {
       if (err) return res.json({ err })
-      return res.json({ title, url, address })
+      return res.json({ title, url, address, kind })
     })
   } catch (err) {
     return res.status(500).json({ status: 500, err })
