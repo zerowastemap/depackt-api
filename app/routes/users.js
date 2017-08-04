@@ -19,13 +19,19 @@ export default (router) => {
 
   router.route('/:id')
     .get(challenge, users.show)
+    .put(challenge, users.update)
+    .delete(challenge, users.remove)
 
   router
     .route('/forgot')
     .post(challenge, users.forgotPassword)
 
   router
+    .route('/desactivate')
+    .put(challenge, users.deactivate)
+
+  router
     .route('/')
-    .post(challenge, users.create)
     .get(challenge, users.list)
+    .post(challenge, users.create)
 }
