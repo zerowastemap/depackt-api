@@ -27,7 +27,7 @@ export const list = async (req, res, next) => {
   try {
     const locations = await Location
       .find({})
-      .select('slug cover title url email tags address kind cover featured')
+      .select('slug cover active map title url email tags address kind cover featured')
 
     if (locations.length) {
       return res.json({data: locations})
@@ -54,12 +54,19 @@ export const search = (req, res, next) => {
   const query = {
     'bool': {
       'must': [
-        { 'multi_match': {
-          'query': q,
-          'fields': ['title', 'tags', 'address.zip', 'address.city', 'address.country'],
-          'fuzziness': 'AUTO'
-        }}
-      ]
+        {
+          'multi_match': {
+            'query': q,
+            'fields': ['title', 'tags', 'address.zip', 'address.city', 'address.country'],
+            'fuzziness': 'AUTO'
+          }
+        }
+      ],
+      'filter': {
+        'term': {
+          'active': true
+        }
+      }
     }
   }
 
@@ -100,8 +107,8 @@ export const search = (req, res, next) => {
 }
 
 /**
-  * Find locations
-  * using only [<longitude>, <latitude>] and distance in km
+  * Locate using only [<longitude>, <latitude>] and distance in km
+  * where map = true
   * @name find
   * @function
   * @param {Object} req
@@ -109,14 +116,18 @@ export const search = (req, res, next) => {
   * @param {Object} next
   */
 
-export const find = async (req, res, next) => {
+export const locate = async (req, res, next) => {
   const { limit = 100, latitude = 50.850340, longitude = 4.351710, distanceKm = 50 } = req.query
   const cached = cache.get(`${latitude}:${longitude}:${distanceKm}`)
 
-  if (cached) return res.json({ status: 200, cached: true, data: cached })
+  if (cached) return res.json({ cached: true, data: cached })
 
   for (let n of [latitude, longitude, limit, distanceKm]) {
-    if (isNaN(n)) return res.status(400).json({message: 'All parameters should be valid numbers'})
+    if (isNaN(n)) {
+      return res.status(400).json({
+        message: 'All parameters should be valid numbers'
+      })
+    }
   }
 
   const maxDistanceInMeters = distanceKm * 1000
@@ -132,7 +143,7 @@ export const find = async (req, res, next) => {
           }
         }
       })
-      .where({map: true})
+      .where({map: true, active: true})
       .select('slug cover title url email tags address kind cover featured')
       .limit(limit)
 
@@ -142,7 +153,6 @@ export const find = async (req, res, next) => {
       })
 
       return res.json({
-        status: 200,
         data: locations
       })
     }
@@ -169,7 +179,7 @@ export const bulk = async (req, res, next) => {
     // NOTE: Won't throw an error as long as majority of inserts succeeded
     let locations = await Location.insertMany(payload, { ordered: false })
 
-    return res.json({ status: 200, data: locations })
+    return res.json({data: locations})
   } catch (err) {
     return res.status(500).json({ status: 500, err })
   }
@@ -185,7 +195,17 @@ export const bulk = async (req, res, next) => {
   */
 
 export const create = async (req, res, next) => {
-  const { title, url, geometry, openingDate, email, tags, address, kind, featured = false } = req.body
+  const {
+    title,
+    url,
+    geometry,
+    openingDate,
+    email,
+    tags,
+    address,
+    kind,
+    featured = false
+  } = req.body
 
   try {
     let location = await new Location({
@@ -226,13 +246,34 @@ export const create = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
   const { id } = req.params
+  const { title, address, url, featured, kind, active, map } = req.body
+
+  if (!address.location) {
+    return res.status(400).json({
+      status: 400,
+      message: 'Address needs a location',
+      data: null
+    })
+  }
 
   try {
-    let location = await Location.findOneAndUpdate({ id }, req.body, { upsert: true })
-    return res.json({
-      message: 'Location successfully updated',
-      data: location
-    })
+    let location = await Location.findOneAndUpdate({ _id: id }, {
+      title,
+      address,
+      url,
+      kind,
+      featured,
+      active,
+      map
+    }, { upsert: true })
+    if (location) {
+      return res.json({
+        message: 'Location successfully updated',
+        data: location
+      })
+    } else {
+      res.status(404).json({status: 404, message: 'Not found', data: null})
+    }
   } catch (err) {
     return res.status(500).json({ status: 500, err })
   }
@@ -259,6 +300,8 @@ export const remove = async (req, res, next) => {
         message: 'Location successfully deleted',
         data: location
       })
+    } else {
+      return res.status(404).json({status: 404, message: 'Not found', data: null})
     }
   } catch (err) {
     return next(err)

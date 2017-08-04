@@ -119,6 +119,11 @@ const LocationSchema = new Schema({
     type: Boolean,
     default: true
   },
+  active: {
+    type: Boolean,
+    es_indexed: true,
+    default: false
+  },
   cover: {
     width: String,
     height: String,

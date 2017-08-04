@@ -150,3 +150,86 @@ export const list = async (req, res, next) => {
     return next(err)
   }
 }
+
+/**
+  * Update one user
+  * @name update
+  * @function
+  * @param {Object} req
+  * @param {Object} res
+  * @param {Object} next
+  */
+
+export const update = async (req, res, next) => {
+  const { username, email } = req.body
+  try {
+    const user = await User.findOneAndUpdate({
+      _id: req.params.id
+    }, { username, email }, {
+      upsert: true
+    })
+
+    if (user) {
+      return res.json(user)
+    } else {
+      return res.status(404).json({message: 'Not found'})
+    }
+  } catch (err) {
+    return next(err)
+  }
+}
+
+/**
+  * Deactivate one user
+  * @name desactivate
+  * @function
+  * @param {Object} req
+  * @param {Object} res
+  * @param {Object} next
+  */
+
+export const deactivate = async (req, res, next) => {
+  const { id } = req.params
+  try {
+    const user = await User.findOneAndUpdate({
+      _id: id
+    }, { active: false }, {
+      upsert: true
+    })
+
+    if (user) {
+      let { username, email, active } = user
+      return res.json({data: { username, email, active }})
+    } else {
+      return res.status(404).json({message: 'Not found', desactivated: false})
+    }
+  } catch (err) {
+    return next(err)
+  }
+}
+
+/**
+  * Remove one user
+  * @name remove
+  * @function
+  * @param {Object} req
+  * @param {Object} res
+  * @param {Object} next
+  */
+
+export const remove = async (req, res, next) => {
+  const { id } = req.params
+  try {
+    let user = await User.findOne({_id: id})
+
+    if (user) {
+      let { username, email } = user
+      await user.remove()
+      return res.json({ data: { username, email }, removed: true })
+    } else {
+      return res.status(404).json({message: 'Not found', removed: false})
+    }
+  } catch (err) {
+    return next(err)
+  }
+}
