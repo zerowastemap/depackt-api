@@ -64,7 +64,8 @@ const LocationSchema = new Schema({
   },
   tags: {
     type: Array,
-    es_indexed: true
+    es_indexed: true,
+    default: ['bio']
   },
   address: {
     streetName: String,
@@ -79,6 +80,10 @@ const LocationSchema = new Schema({
     },
     countryCode: String,
     region: {
+      type: String,
+      es_indexed: true
+    },
+    province: {
       type: String,
       es_indexed: true
     },
@@ -110,7 +115,7 @@ const LocationSchema = new Schema({
   },
   kind: {
     type: String,
-    enum: ['supermarket', 'market', 'webshop', 'event', 'association'],
+    enum: ['supermarket', 'grocery-store', 'market', 'webshop', 'event', 'association', 'coop'],
     required: false,
     es_indexed: true,
     default: 'market'

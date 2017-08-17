@@ -92,7 +92,7 @@ Some requests requires auth (session cookie based)
 
 - PUT /locations/:id
 
-- /locations/search/:query
+- GET /locations/search?q=query&selection=supermarket market
 
   Search for 'vrac' returns
 
