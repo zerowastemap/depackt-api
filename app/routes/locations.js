@@ -6,7 +6,7 @@
 
 // Module dependencies
 
-import {create, locate, list, update, remove, bulk, search} from '../controllers/locations'
+import {create, locate, list, update, remove, bulk, elasticsearch, search} from '../controllers/locations'
 import {challenge} from '../controllers/auth'
 
 /**
@@ -19,6 +19,10 @@ export default (router) => {
     .route('/:id')
     .put(challenge, update)
     .delete(challenge, remove)
+
+  router
+    .route('/esearch')
+    .get(elasticsearch)
 
   router
     .route('/search')

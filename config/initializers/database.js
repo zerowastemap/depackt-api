@@ -15,6 +15,7 @@ export default (config) => {
   const { uri: mongoURI, name: dbName, user: dbUser, pass: dbPass } = config.db
 
   const options = {
+    useMongoClient: true,
     db: {
       native_parser: true
     },

@@ -13,6 +13,7 @@ import Location from '../../models/location'
 import slug from 'slug'
 import dataSet from '../../../public/data.json'
 import cache from 'memory-cache'
+import _ from 'lodash'
 
 /**
   * List everything
@@ -40,7 +41,7 @@ export const list = async (req, res, next) => {
 }
 
 /**
-  * Search locations using elasticsearch
+  * Search locations using mongodb only
   * @name search
   * @function
   * @param {Object} req
@@ -48,7 +49,53 @@ export const list = async (req, res, next) => {
   * @param {Object} next
   */
 
-export const search = (req, res, next) => {
+export const search = async (req, res, next) => {
+  const { q = '', selection = 'supermarket grocery-store market webshop coop' } = req.query
+
+  const query = q.split(/[\s,+]+/)
+
+  const r = query.map((item) => {
+    return '(' + _.escapeRegExp(item) + ')'
+  }).join('|')
+
+  const regex = {
+    $regex: new RegExp(r, 'i')
+  }
+
+  try {
+    const locations = await Location.find({
+      active: true
+    })
+    .where('kind').in(selection.split(' '))
+    .or([
+      {
+        'address.city': regex
+      },
+      {
+        'title': regex
+      },
+      {
+        'tags': regex
+      }
+    ])
+    .select('slug cover title url tags address kind cover featured')
+
+    return res.json({data: locations})
+  } catch (err) {
+    return res.status(500).json({ status: 500, err })
+  }
+}
+
+/**
+  * Search locations using elasticsearch
+  * @name elasticsearch
+  * @function
+  * @param {Object} req
+  * @param {Object} res
+  * @param {Object} next
+  */
+
+export const elasticsearch = (req, res, next) => {
   const { q, selection } = req.query
 
   const query = {
@@ -61,17 +108,12 @@ export const search = (req, res, next) => {
             'fuzziness': 'AUTO'
           }
         }
-      ],
-      'filter': {
-        'term': {
-          'active': true
-        }
-      }
+      ]
     }
   }
 
   if (selection) {
-    let kinds = ['supermarket', 'market', 'webshop', 'event', 'association']
+    let kinds = ['supermarket', 'market', 'grocery-store', 'webshop', 'event', 'association']
     let exclude = kinds.filter((item) => {
       if (!selection.split(' ').includes(item)) return item
     })
@@ -85,10 +127,9 @@ export const search = (req, res, next) => {
   Location.search(query, {
     hydrate: true,
     hydrateOptions: {
-      select: 'slug cover title url email tags address kind cover featured'
+      select: 'slug cover title url tags address kind cover featured'
     }
   }, (err, results) => {
-    console.log(results)
     if (err) return next(err)
     var data, i$, ref$, len$, item
     if (results.hits.total === 0 || results == null) {
@@ -144,7 +185,7 @@ export const locate = async (req, res, next) => {
         }
       })
       .where({map: true, active: true})
-      .select('slug cover title url email tags address kind cover featured')
+      .select('slug cover title url tags address kind cover featured')
       .limit(limit)
 
     if (locations.length) {
@@ -226,9 +267,9 @@ export const create = async (req, res, next) => {
       location.slug = slug(title).toLowerCase()
     }
 
-    location.save((err) => {
+    location.save((err, location) => {
       if (err) return res.json({ err })
-      return res.json({ title, url, address, kind })
+      return res.json(location)
     })
   } catch (err) {
     return res.status(500).json({ status: 500, err })
@@ -246,7 +287,7 @@ export const create = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
   const { id } = req.params
-  const { title, address, url, featured, kind, active, map } = req.body
+  const { title, email, address, url, tags, featured, kind, active, map } = req.body
 
   if (!address.location) {
     return res.status(400).json({
@@ -259,8 +300,10 @@ export const update = async (req, res, next) => {
   try {
     let location = await Location.findOneAndUpdate({ _id: id }, {
       title,
+      email,
       address,
       url,
+      tags,
       kind,
       featured,
       active,
