@@ -72,6 +72,18 @@ export const search = async (req, res, next) => {
         'address.city': regex
       },
       {
+        'address.region': regex
+      },
+      {
+        'address.province': regex
+      },
+      {
+        'address.country': regex
+      },
+      {
+        'address.zip': regex
+      },
+      {
         'title': regex
       },
       {
