@@ -116,7 +116,7 @@ const LocationSchema = new Schema({
   kind: {
     type: String,
     enum: ['supermarket', 'grocery-store', 'market', 'webshop', 'event', 'association', 'coop'],
-    required: false,
+    required: true,
     es_indexed: true,
     default: 'market'
   },
